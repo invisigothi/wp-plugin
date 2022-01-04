@@ -251,14 +251,10 @@ class LastViewedByGrel extends WP_Widget
         return $instance;
     }
 
-    function getExcludeIds()
+    function getExcludeIds($str)
     {
-        $val = get_option('grel_settings');
-        if (isset($val['exclude_ids']))
-        {
-            return explode(',', $val['exclude_ids']);
-        }
-        return false;
+        return explode(',', $str);
+       
     }
 
     function getViewedList($PostsFromObject, $posttype)
@@ -270,8 +266,6 @@ class LastViewedByGrel extends WP_Widget
         switch($posttype)
         {
             case 'cat':
-                // if ($val['include_rubrics'] == 0)
-                // return;
                     $categories = get_categories(
                         [
                             'include'=>array_reverse($viewedList),
@@ -280,7 +274,7 @@ class LastViewedByGrel extends WP_Widget
             break;
             case 'page':
                 $othersettings = array();
-                $exludeids = $this->getExcludeIds();
+                $exludeids = $this->getExcludeIds($val['exclude_ids']);
                 $args = array(
                     'post_type'=>'page',
                     'post__in' => array_reverse($viewedList) ,
@@ -289,7 +283,7 @@ class LastViewedByGrel extends WP_Widget
                 
                 $query = new WP_Query(array_merge($args, $othersettings));
             break;
-            case 'tax':
+            case 'tag':
                 //метки
             break;
         }
@@ -313,14 +307,14 @@ class LastViewedByGrel extends WP_Widget
         if ($PostsFromObject && $val['include_rubrics'] == 1 && $posttype == 'cat')
         {
             $resultCats = array();
-           foreach ($categories as $cat)
+            foreach ($categories as $cat)
             {
-                 $resultCats[] = array(
-                  "id" => $cat->term_id,
+                $resultCats[] = array(
+                    "id" => $cat->term_id,
                     "post_title" => $cat->cat_name,
-                   "post_link" => get_category_link($cat->term_id),
-                   "post_img" =>  '',
-             );
+                    "post_link" => get_category_link($cat->term_id),
+                    "post_img" =>  '',
+                );
             }
             return $resultCats;
         }
