@@ -6,6 +6,7 @@ class Config
     const GREL_WIDGET_DESCRIPTION = 'Виджет для вывода недавно просмотренных страниц и записей';
     const GREL_COOKIE_PREFIX = 'grel_';
     const DEFAULT_COOKIE_LIVE = 3600;
+    const DEFAULT_MAX_PAGE = 15;
 }
 
 class LastViewedByGrel extends WP_Widget
@@ -109,8 +110,8 @@ class LastViewedByGrel extends WP_Widget
                 setcookie($cookiename, $imploded, time() + $cookielive, '/');
             }
         }
-        $postlist = $this->getViewedList($PostsFromObject = true);
-        $cats = $this->getViewedCats($PostsFromObject = true);
+        $postlist = $this->getViewedList($PostsFromObject = true, 'page');
+        $cats = $this->getViewedList($PostsFromObject = true, 'cat');
         if (isset($cats))
         {
             $newPostlist = array_merge($postlist, $cats);
@@ -152,8 +153,8 @@ class LastViewedByGrel extends WP_Widget
     function load_widget_ajax()
     {
         $PostsFromObject = true;
-        $postlist = $this->getViewedList($PostsFromObject);
-        $cats = $this->getViewedCats($PostsFromObject);
+        $postlist = $this->getViewedList($PostsFromObject, 'page');
+        $cats = $this->getViewedList($PostsFromObject, 'cat');
         if (isset($cats))
         {
             $newPostlist = array_merge($postlist, $cats);
@@ -260,31 +261,41 @@ class LastViewedByGrel extends WP_Widget
         return false;
     }
 
-    function getViewedList($PostsFromObject)
+    function getViewedList($PostsFromObject, $posttype)
     {
         $viewedList = $this->getCookieList(Config::GREL_COOKIE_PREFIX . 'widget');
-         if (count($viewedList) > 0)
+        if (count($viewedList) > 0)
          { 
-            $othersettings = array();
-            $exludeids = $this->getExcludeIds();
-            $args = array(
-                'post_type'=>'page',
-                'post__in' => array_reverse($viewedList) ,
-                'post_status' => 'publish',
-            );
-            if ($exludeids)
-            {
-                $othersettings = array(
-                    'post__not_in' => $exludeids,
+            $val = get_option('grel_settings');
+        switch($posttype)
+        {
+            case 'cat':
+                // if ($val['include_rubrics'] == 0)
+                // return;
+                    $categories = get_categories(
+                        [
+                            'include'=>array_reverse($viewedList),
+                        ]
+                    );
+            break;
+            case 'page':
+                $othersettings = array();
+                $exludeids = $this->getExcludeIds();
+                $args = array(
+                    'post_type'=>'page',
+                    'post__in' => array_reverse($viewedList) ,
+                    'post_status' => 'publish',
                 );
-            }
-            $query = new WP_Query(array_merge($args, $othersettings));
-         }
-        else
-         {
-            $query = new WP_Query();
+                
+                $query = new WP_Query(array_merge($args, $othersettings));
+            break;
+            case 'tax':
+                //метки
+            break;
         }
-        if ($PostsFromObject)
+    }
+           
+        if ($PostsFromObject && $posttype == 'page')
         {
             $resultPages = array();
             $val = get_option('grel_settings');
@@ -298,24 +309,8 @@ class LastViewedByGrel extends WP_Widget
                 );
             }
             return $resultPages;
-        }else{
-            return $query;
         }
-        
-    }
-
-    function getViewedCats($PostsFromObject)
-    {
-        $val = get_option('grel_settings');
-        if ($val['include_rubrics'] == 0)
-        return;
-        $viewedList = $this->getCookieList(Config::GREL_COOKIE_PREFIX . 'widget');
-            $categories = get_categories(
-                [
-                    'include'=>array_reverse($viewedList),
-                ]
-            );
-        if ($PostsFromObject && $val['include_rubrics'] == 1)
+        if ($PostsFromObject && $val['include_rubrics'] == 1 && $posttype == 'cat')
         {
             $resultCats = array();
            foreach ($categories as $cat)
@@ -328,11 +323,10 @@ class LastViewedByGrel extends WP_Widget
              );
             }
             return $resultCats;
-        }else{
-            return $query;
         }
-       
+        
     }
+
 
     function grel_viewed_menu() {
         add_options_page('Grel Viewed Options', 
