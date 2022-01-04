@@ -4,6 +4,12 @@
         // echo '<p>page</p>';
         // echo '</div>';
 ?>
+<style>
+.lang__changer{
+        cursor: pointer;
+        font-weight: bold;
+}
+</style>
 <div class="row">
     <div class="col-lg-6">
     <?if ($_GET['lang'] === 'RU' || !isset($_GET['lang'])):?>
@@ -16,7 +22,7 @@
         }else{
                 $currentLang = 'RU';
         }?>
-        <a onclick="changeLang('lang','<?=$currentLang;?>'); return false;"><?=$currentLang;?></a>
+        <a class="lang__changer" onclick="changeLang('lang','<?=$currentLang;?>'); return false;"><?=$currentLang;?></a>
 </div>
 
 <form action="options.php" method="POST">
