@@ -187,7 +187,11 @@ class LastViewedByGrel extends WP_Widget
          }else{
             foreach ($arr as $key => $val)
             {
-                $container .= '<img src="'.$val['post_img'].'"><p><a href="'.$val["post_link"].'">' . $val["post_title"] . '</a></p>';
+                if (isset($val['post_img']))
+                {
+                    $container .= '<img src="'.$val['post_img'].'">';
+                }
+                $container .= '<p><a href="'.$val["post_link"].'">' . $val["post_title"] . '</a></p>';
             }
             $container .= '</div>';
         }
@@ -277,13 +281,14 @@ class LastViewedByGrel extends WP_Widget
         if ($PostsFromObject)
         {
             $resultPages = array();
+            $val = get_option('grel_settings');
             foreach ($query->posts as $post)
             {
                 $resultPages[] = array(
                     "id" => $post->ID,
                     "post_title" => $post->post_title,
                     "post_link" => get_permalink($post->ID),
-                    "post_img" => get_the_post_thumbnail($post->ID),
+                    "post_img" => $val['thumbnails'] == 1 ? get_the_post_thumbnail($post->ID) : '',
                 );
             }
             return $resultPages;
@@ -313,7 +318,7 @@ class LastViewedByGrel extends WP_Widget
                   "id" => $cat->term_id,
                     "post_title" => $cat->cat_name,
                    "post_link" => get_category_link($cat->term_id),
-                   "post_img" => '',
+                   "post_img" =>  '',
              );
             }
             return $resultCats;
@@ -368,10 +373,10 @@ class LastViewedByGrel extends WP_Widget
             ), 
         'main_settings_page', 
         'section_id' );
-        add_settings_field('primer_field2',  $mess[$lang]['include_rubrics'], 
+        add_settings_field('include_rubrics',  $mess[$lang]['include_rubrics'], 
             array(
                 $this, 
-                'fill_primer_field2' 
+                'fill_include_rubrics' 
         ), 
         'main_settings_page', 
         'section_id' );
@@ -383,6 +388,23 @@ class LastViewedByGrel extends WP_Widget
         ),
         'main_settings_page',
         'section_id');
+
+        add_settings_field('thumbnails', $mess[$lang]['thumbnails'],
+        array(
+            $this,
+            'fill_thumbnails'
+        ),
+        'main_settings_page',
+        'section_id');
+    }
+
+    function fill_thumbnails()
+    {
+        $val = get_option('grel_settings');
+        $val = $val ? $val['thumbnails'] : null;
+        ?>
+            <input type="checkbox" name="grel_settings[thumbnails]" value="1" <?php checked( 1, $val ) ?> />
+        <?php 
     }
 
     function fill_cookie_live()
@@ -411,7 +433,7 @@ class LastViewedByGrel extends WP_Widget
         <?php
     }
     //включить рубрики
-    function fill_primer_field2(){
+    function fill_include_rubrics(){
         $val = get_option('grel_settings');
         $val = $val ? $val['include_rubrics'] : null;
         ?>
@@ -431,6 +453,8 @@ class LastViewedByGrel extends WP_Widget
                 $val = strip_tags($val);
             if( $name == 'cookie_live' )
                 $val = strip_tags($val);
+            if ($name == 'thumbnails')
+                $val = intval($val);
         }
     
         //die(print_r( $options )); // Array ( [input] => aaaa [checkbox] => 1 )

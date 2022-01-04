@@ -13,3 +13,6 @@ $mess['RU']['total'] = 'Максимальное количество посто
 
 $mess['EN']['cookie_live'] = 'Cookie live';
 $mess['RU']['cookie_live'] = 'Время жизни куки';
+
+$mess['EN']['thumbnails'] = 'Post thumbnails';
+$mess['RU']['thumbnails'] = 'Изображения';
