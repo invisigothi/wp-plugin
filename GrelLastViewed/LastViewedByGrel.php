@@ -185,13 +185,20 @@ class LastViewedByGrel extends WP_Widget
          {
             $container .= '</div>';
          }else{
+             $settings = get_option('grel_settings');
+             $i = 0;
             foreach ($arr as $key => $val)
             {
                 if (isset($val['post_img']))
                 {
                     $container .= '<img src="'.$val['post_img'].'">';
                 }
+                $i++;
                 $container .= '<p><a href="'.$val["post_link"].'">' . $val["post_title"] . '</a></p>';
+                if (isset($settings['total']) && intval($settings['total']) === $i)
+                {
+                    break;
+                }
             }
             $container .= '</div>';
         }
@@ -271,7 +278,6 @@ class LastViewedByGrel extends WP_Widget
                     'post__not_in' => $exludeids,
                 );
             }
-            
             $query = new WP_Query(array_merge($args, $othersettings));
          }
         else
@@ -359,20 +365,22 @@ class LastViewedByGrel extends WP_Widget
         add_settings_section( 'section_id', $mess[$lang]['settings'] , '', 'main_settings_page' );
       
         // параметры: $id, $title, $callback, $page, $section, $args
-        add_settings_field('primer_field1', $mess[$lang]['total'], 
+        add_settings_field('total', $mess[$lang]['total'], 
             array(
                 $this,
-                'fill_primer_field1'
+                'fill_total'
             ), 
         'main_settings_page',
         'section_id' );
-        add_settings_field('primer_field3',  $mess[$lang]['exclude'], 
+
+        add_settings_field('exclude',  $mess[$lang]['exclude'], 
             array(
                 $this,
-                'fill_primer_field3'
+                'fill_exclude'
             ), 
         'main_settings_page', 
         'section_id' );
+        
         add_settings_field('include_rubrics',  $mess[$lang]['include_rubrics'], 
             array(
                 $this, 
@@ -416,7 +424,7 @@ class LastViewedByGrel extends WP_Widget
         <?
     }
 
-    function fill_primer_field3()
+    function fill_exclude()
     {
         $val = get_option('grel_settings');
         $val = $val ? $val['exclude_ids'] : null;
@@ -425,7 +433,7 @@ class LastViewedByGrel extends WP_Widget
         <? 
     }
     //количество выводимых
-    function fill_primer_field1(){
+    function fill_total(){
         $val = get_option('grel_settings');
         $val = $val ? $val['total'] : null;
         ?>
