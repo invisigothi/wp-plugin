@@ -1,4 +1,10 @@
 <?php
+$mess['EN']['lang'] = 'Language';
+$mess['RU']['lang'] = 'Язык';
+$mess['EN']['btn_save_text'] = 'Save changes';
+$mess['RU']['btn_save_text'] = 'Сохранить';
+$mess['EN']['settings_title'] = 'Settings';
+$mess['RU']['settings_title'] = 'Настройки';
 $mess['EN']['settings'] = 'Main settings';
 $mess['RU']['settings'] = 'Основные настройки';
 $mess['EN']['exclude'] = 'Exclude';

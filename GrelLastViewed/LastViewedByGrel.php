@@ -34,7 +34,11 @@ class LastViewedByGrel extends WP_Widget
             $this,
             'GrelViewedAssets'
         ));
-     
+        add_action('admin_enqueue_scripts', 
+        array($this,'AdminStyles'));
+        add_action('admin_footer', 
+        array($this,'getAdminScripts')
+        );
         //аякс
         if (wp_doing_ajax())
         {
@@ -132,7 +136,6 @@ class LastViewedByGrel extends WP_Widget
         <div id="grel-last-viewed-1" class="grel-last-ajax" data-id="grel-last-viewed-1"></div>';
         return $container;
     }
-
     function GrelViewedAssets()
     {
         $script_url = plugins_url('/js/main.js', __FILE__);
@@ -140,6 +143,18 @@ class LastViewedByGrel extends WP_Widget
             'jquery'
         ));
         wp_localize_script('main', 'GVData', $this->jsvars);
+    }
+
+    function getAdminScripts()
+    {
+        $scripturl = plugins_url('/js/admin-main.js', __FILE__);
+        echo '"<script type="text/javascript" src="'. $scripturl . '"></script>"';
+    }
+
+    function AdminStyles()
+    {
+        $stylesheeturl =  plugins_url('/css/style.css', __FILE__);
+        wp_enqueue_style('admin-styles', $stylesheeturl);
     }
 
     function func_set_cookie_data_ajax()
@@ -190,6 +205,13 @@ class LastViewedByGrel extends WP_Widget
              $i = 0;
             foreach ($arr as $key => $val)
             {
+                 if (count($settings['exclude_ids']) > 0)
+                 {
+                     if (in_array($val['id'], $settings['exclude_ids']))
+                     {
+                        continue;
+                     }
+                 }
                 if (isset($val['post_img']))
                 {
                     $container .= '<img src="'.$val['post_img'].'">';
@@ -251,12 +273,6 @@ class LastViewedByGrel extends WP_Widget
         return $instance;
     }
 
-    function getExcludeIds($str)
-    {
-        return explode(',', $str);
-       
-    }
-
     function getViewedList($PostsFromObject, $posttype)
     {
         $viewedList = $this->getCookieList(Config::GREL_COOKIE_PREFIX . 'widget');
@@ -274,7 +290,6 @@ class LastViewedByGrel extends WP_Widget
             break;
             case 'page':
                 $othersettings = array();
-                $exludeids = $this->getExcludeIds($val['exclude_ids']);
                 $args = array(
                     'post_type'=>'page',
                     'post__in' => array_reverse($viewedList) ,
@@ -282,9 +297,6 @@ class LastViewedByGrel extends WP_Widget
                 );
                 
                 $query = new WP_Query(array_merge($args, $othersettings));
-            break;
-            case 'tag':
-                //метки
             break;
         }
     }
@@ -335,13 +347,28 @@ class LastViewedByGrel extends WP_Widget
         if (!current_user_can('manage_options'))  {
         wp_die( __('У вас нет прав доступа на эту страницу.') );
         }
+        include 'lang/languages.php';
         include 'Form/admin-form.php';
         
       }
+      function getAllPages()
+      {
+         global $wpdb;
+          $allSitePages = get_pages();
+          $pagesInfo = array();
+          foreach ($allSitePages as $page)
+          {
+              $pagesInfo[] = array(
+                  "id" => $page->ID,
+                  "title" => $page->post_title,
+              );
+          }
+          return $pagesInfo;
+      }
+     
       function plugin_settings(){
 
         include 'lang/languages.php';
-        // параметры: $option_group, $option_name, $sanitize_callback
         register_setting( 'option_group', 'grel_settings', 
             array(
                 $this,
@@ -349,10 +376,7 @@ class LastViewedByGrel extends WP_Widget
             )
         );
         $lang = $this->CheckLang();
-        // параметры: $id, $title, $callback, $page
         add_settings_section( 'section_id', $mess[$lang]['settings'] , '', 'main_settings_page' );
-      
-        // параметры: $id, $title, $callback, $page, $section, $args
         add_settings_field('total', $mess[$lang]['total'], 
             array(
                 $this,
@@ -399,7 +423,10 @@ class LastViewedByGrel extends WP_Widget
         $val = get_option('grel_settings');
         $val = $val ? $val['thumbnails'] : null;
         ?>
-            <input type="checkbox" name="grel_settings[thumbnails]" value="1" <?php checked( 1, $val ) ?> />
+        <div class="toggleWrapper">
+            <input type="checkbox" id="toggle1" class="mobileToggle" name="grel_settings[thumbnails]" value="1" <?php checked( 1, $val ) ?> />
+            <label for="toggle1"></label>
+    </div>
         <?php 
     }
 
@@ -416,8 +443,23 @@ class LastViewedByGrel extends WP_Widget
     {
         $val = get_option('grel_settings');
         $val = $val ? $val['exclude_ids'] : null;
+        $allPages = $this->getAllPages();
     ?>
-        <textarea name="grel_settings[exclude_ids]" value="<?echo esc_attr($val)?>"></textarea>
+    <select class="admin__excluded" multiple="multiple" name="grel_settings[exclude_ids][]">
+    <?php foreach ($allPages as $page) : ?>
+                        <option 
+                        <? if (array_search($page['id'], $val) >=0 && array_search($page['id'], $val) !== false )
+                        {
+                            echo 'selected';
+                        }?>
+                         value="<?=$page["id"]; ?>" ><?=$page["title"] ?>
+                        </option>
+                    <?php endforeach; ?>
+                   
+    </select>
+
+  
+        <!-- <textarea name="grel_settings[exclude_ids]" value="<?//echo esc_attr($val)?>"></textarea> -->
         <? 
     }
     //количество выводимых
@@ -433,7 +475,6 @@ class LastViewedByGrel extends WP_Widget
         $val = get_option('grel_settings');
         $val = $val ? $val['include_rubrics'] : null;
         ?>
-        
             <input type="checkbox" name="grel_settings[include_rubrics]" value="1" <?php checked( 1, $val ) ?> />
         <?php
     }
@@ -446,7 +487,7 @@ class LastViewedByGrel extends WP_Widget
             if( $name == 'include_rubrics' )
                 $val = intval( $val );
             if ($name == 'exclude_ids')
-                $val = strip_tags($val);
+                //$val = strip_tags($val);
             if( $name == 'cookie_live' )
                 $val = strip_tags($val);
             if ($name == 'thumbnails')

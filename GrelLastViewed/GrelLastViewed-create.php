@@ -10,13 +10,14 @@
 
 require_once dirname(__FILE__) . '/LastViewedByGrel.php';
 
+
 register_activation_hook($file, 'grel_viewed_install');
 register_deactivation_hook($file, 'grel_viewed_uninstall');
 
 
 function grel_viewed_install()
 {
-//тут создать таблицы в бд
+    
 }
 function grel_viewed_uninstall()
 {
