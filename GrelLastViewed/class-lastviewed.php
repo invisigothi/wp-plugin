@@ -25,7 +25,7 @@ class LastViewed extends WP_Widget
             'GrelViewedAssets'
         ));
         add_action('admin_enqueue_scripts', 
-        array($this,'AdminStyles'));
+        array($this,'getAdminStyles'));
         add_action('admin_footer', 
         array($this,'getAdminScripts')
         );
@@ -75,12 +75,7 @@ class LastViewed extends WP_Widget
         }
         if (!$this->currentPostId) 
         return;
-        if (isset($val['cookie_live']))
-        {
-            $cookielive = intval($val['cookie_live']);
-        }else{
-            $cookielive = Config::DEFAULT_COOKIE_LIVE;
-        }
+      $cookielive = $this->getCookieLive($val['cookie_live']);
         $this->jsvars = array(
             'ajaxurl' => admin_url('/admin-ajax.php') ,
             'current_page' => $this->currentPostId,
@@ -104,16 +99,26 @@ class LastViewed extends WP_Widget
                 setcookie($cookiename, $imploded, time() + $cookielive, '/');
             }
         }
-        $postlist = $this->getViewedList($PostsFromObject = true, 'page');
-        $cats = $this->getViewedList($PostsFromObject = true, 'cat');
+        $postlist = $this->getViewedList($ArrayFromObject = true, 'page');
+        $cats = $this->getViewedList($ArrayFromObject = true, 'cat');
         if (isset($cats))
         {
             $newPostlist = array_merge($postlist, $cats);
         }else{
             $newPostlist = $postlist;
         }
-        $test = $this->load_widget_ajax($newPostlist); 
-       
+        $loadwidget = $this->load_widget_ajax($newPostlist); 
+    }
+
+    function getCookieLive($time)
+    {
+        if (!empty($time))
+        {
+            $cookielive = intval($time);
+        }else{
+            $cookielive = Config::DEFAULT_COOKIE_LIVE;
+        }
+        return $cookielive;
     }
     function grelshortCode_lastViewed($atts){
         $params =  shortcode_atts( 
@@ -134,31 +139,27 @@ class LastViewed extends WP_Widget
         ));
         wp_localize_script('main', 'GVData', $this->jsvars);
     }
-
     function getAdminScripts()
     {
         $scripturl = plugins_url('/assets/js/admin-main.js', __FILE__);
         echo '"<script type="text/javascript" src="'. $scripturl . '"></script>"';
     }
-
-    function AdminStyles()
+    function getAdminStyles()
     {
         $stylesheeturl =  plugins_url('/assets/css/style.css', __FILE__);
         wp_enqueue_style('admin-styles', $stylesheeturl);
     }
-
     function func_set_cookie_data_ajax()
     {
         $phpcookies = $this->generatenewCookie($_POST["current_page_id"]);
         echo json_encode($phpcookies);
         wp_die();
     }
-
     function load_widget_ajax()
     {
-        $PostsFromObject = true;
-        $postlist = $this->getViewedList($PostsFromObject, 'page');
-        $cats = $this->getViewedList($PostsFromObject, 'cat');
+        $ArrayFromObject = true;
+        $postlist = $this->getViewedList($ArrayFromObject, 'page');
+        $cats = $this->getViewedList($ArrayFromObject, 'cat');
         if (isset($cats))
         {
             $newPostlist = array_merge($postlist, $cats);
@@ -180,7 +181,6 @@ class LastViewed extends WP_Widget
         }else{
             return $widgetwrapper;
         }
-       
     }
 
     function set_widget_wrap($arr)
@@ -262,7 +262,7 @@ class LastViewed extends WP_Widget
         return $instance;
     }
 
-    function getViewedList($PostsFromObject, $posttype)
+    function getViewedList($ArrayFromObject, $posttype)
     {
         $viewedList = $this->getCookieList(Config::GREL_COOKIE_PREFIX . 'widget');
         if (count($viewedList) > 0)
@@ -290,7 +290,7 @@ class LastViewed extends WP_Widget
         }
     }
            
-        if ($PostsFromObject && $posttype == 'page')
+        if ($ArrayFromObject && $posttype == 'page')
         {
             $resultPages = array();
             $val = get_option('grel_settings');
@@ -305,7 +305,7 @@ class LastViewed extends WP_Widget
             }
             return $resultPages;
         }
-        if ($PostsFromObject && $val['include_rubrics'] == 1 && $posttype == 'cat')
+        if ($ArrayFromObject && $val['include_rubrics'] == 1 && $posttype == 'cat')
         {
             $resultCats = array();
             foreach ($categories as $cat)
@@ -322,7 +322,6 @@ class LastViewed extends WP_Widget
         
     }
 
-
     function grel_viewed_menu() {
         add_options_page('Grel Viewed Options', 
         'Grel Viewed', 8, __FILE__, 
@@ -338,13 +337,13 @@ class LastViewed extends WP_Widget
         }
         include 'lang/languages.php';
         include 'form/admin-form.php';
-        
       }
+
       function getAllPages()
       {
-         global $wpdb;
-          $allSitePages = get_pages();
-          $pagesInfo = array();
+        global $wpdb;
+        $allSitePages = get_pages();
+        $pagesInfo = array();
           foreach ($allSitePages as $page)
           {
               $pagesInfo[] = array(
@@ -352,11 +351,10 @@ class LastViewed extends WP_Widget
                   "title" => $page->post_title,
               );
           }
-          return $pagesInfo;
+        return $pagesInfo;
       }
      
       function plugin_settings(){
-
         include 'lang/languages.php';
         register_setting( 'option_group', 'grel_settings', 
             array(
@@ -415,10 +413,9 @@ class LastViewed extends WP_Widget
         <div class="toggleWrapper">
             <input type="checkbox" id="toggle1" class="mobileToggle" name="grel_settings[thumbnails]" value="1" <?php checked( 1, $val ) ?> />
             <label for="toggle1"></label>
-    </div>
+        </div>
         <?php 
     }
-
     function fill_cookie_live()
     {
         $val = get_option('grel_settings');
@@ -427,7 +424,6 @@ class LastViewed extends WP_Widget
         <input type="text" name="grel_settings[cookie_live]" value="<?echo esc_attr($val)?>">
         <?
     }
-
     function fill_exclude()
     {
         $val = get_option('grel_settings');
@@ -446,9 +442,6 @@ class LastViewed extends WP_Widget
                     <?php endforeach; ?>
                    
     </select>
-
-  
-        <!-- <textarea name="grel_settings[exclude_ids]" value="<?//echo esc_attr($val)?>"></textarea> -->
         <? 
     }
     //количество выводимых
@@ -467,7 +460,6 @@ class LastViewed extends WP_Widget
             <input type="checkbox" name="grel_settings[include_rubrics]" value="1" <?php checked( 1, $val ) ?> />
         <?php
     }
-    
     ## Очистка данных
     function sanitize_callback( $options ){
         foreach( $options as $name => & $val ){
@@ -482,12 +474,8 @@ class LastViewed extends WP_Widget
             if ($name == 'thumbnails')
                 $val = intval($val);
         }
-    
-        //die(print_r( $options )); // Array ( [input] => aaaa [checkbox] => 1 )
-    
         return $options;
     }
-
     function CheckLang()
     {
     if ($_GET['lang'] === 'RU' || !isset($_GET['lang'])){
@@ -497,9 +485,7 @@ class LastViewed extends WP_Widget
     }
     return $currentLang;
     }
-
 }
-
 add_action('widgets_init', function ()
 {
     register_widget('LastViewed');
