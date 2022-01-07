@@ -7,4 +7,14 @@ class Config
     const DEFAULT_COOKIE_LIVE = 3600;
     const DEFAULT_MAX_PAGE = 15;
     const DEFAULT_SETTINGS_NAME = 'main_settings';
+
+    function CheckLang()
+    {
+        if ($_GET['lang'] === 'RU' || !isset($_GET['lang'])){
+                $currentLang = 'RU';
+        }else{
+                $currentLang = 'EN';
+        }
+        return $currentLang;
+    }
 }

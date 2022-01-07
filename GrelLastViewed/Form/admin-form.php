@@ -16,11 +16,10 @@ $lang = 'EN';
         <h2><?=$mess[$lang]['lang'];?></h2>
         <a class="lang__changer" onclick="changeLang('lang','<?=$currentLang;?>'); return false;"><?=$currentLang;?></a>
 </div>
-
 <form class="settings__form" action="options.php" method="POST">
-			<?php
-				settings_fields( 'option_group' );     
-				do_settings_sections( 'main_settings_page' ); 
-				submit_button($mess[$lang]['btn_save_text']);
-			?>
-		</form>
+<?php
+settings_fields( 'option_group' );     
+do_settings_sections( 'main_settings_page' ); 
+submit_button($mess[$lang]['btn_save_text']);
+?>
+</form>
