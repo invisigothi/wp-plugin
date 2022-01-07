@@ -9,6 +9,8 @@
 */
 
 require_once dirname(__FILE__) . '/LastViewedByGrel.php';
+require_once dirname( __FILE__ ) . '/class-config.php';
+
 
 
 register_activation_hook($file, 'grel_viewed_install');

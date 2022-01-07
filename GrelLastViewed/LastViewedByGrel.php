@@ -1,14 +1,4 @@
 <?php
-class Config
-{
-    const GREL_LANG = 'ru';
-    const GREL_WIDGET_NAME = 'GREL LAST VIEWED';
-    const GREL_WIDGET_DESCRIPTION = 'Виджет для вывода недавно просмотренных страниц и записей';
-    const GREL_COOKIE_PREFIX = 'grel_';
-    const DEFAULT_COOKIE_LIVE = 3600;
-    const DEFAULT_MAX_PAGE = 15;
-}
-
 class LastViewedByGrel extends WP_Widget
 {
     private $args;
@@ -24,7 +14,7 @@ class LastViewedByGrel extends WP_Widget
         );
         parent::__construct('LastViewedByGrel', 'Last Viewed By Grel', $widget_options);
         add_action('admin_init', array($this, 'plugin_settings'));
-
+      
         //подключение скриптов
         add_action('wp', array(
             $this,
@@ -138,7 +128,7 @@ class LastViewedByGrel extends WP_Widget
     }
     function GrelViewedAssets()
     {
-        $script_url = plugins_url('/js/main.js', __FILE__);
+        $script_url = plugins_url('/assets/js/main.js', __FILE__);
         wp_enqueue_script('main', $script_url, array(
             'jquery'
         ));
@@ -147,13 +137,13 @@ class LastViewedByGrel extends WP_Widget
 
     function getAdminScripts()
     {
-        $scripturl = plugins_url('/js/admin-main.js', __FILE__);
+        $scripturl = plugins_url('/assets/js/admin-main.js', __FILE__);
         echo '"<script type="text/javascript" src="'. $scripturl . '"></script>"';
     }
 
     function AdminStyles()
     {
-        $stylesheeturl =  plugins_url('/css/style.css', __FILE__);
+        $stylesheeturl =  plugins_url('/assets/css/style.css', __FILE__);
         wp_enqueue_style('admin-styles', $stylesheeturl);
     }
 
@@ -161,7 +151,6 @@ class LastViewedByGrel extends WP_Widget
     {
         $phpcookies = $this->generatenewCookie($_POST["current_page_id"]);
         echo json_encode($phpcookies);
-        
         wp_die();
     }
 
@@ -263,7 +252,7 @@ class LastViewedByGrel extends WP_Widget
     public function form($instance)
     {
         //include ('Form/form.php');
-        return true;
+       // return true;
     }
 
     public function update($new_instance, $old_instance)
@@ -348,7 +337,7 @@ class LastViewedByGrel extends WP_Widget
         wp_die( __('У вас нет прав доступа на эту страницу.') );
         }
         include 'lang/languages.php';
-        include 'Form/admin-form.php';
+        include 'form/admin-form.php';
         
       }
       function getAllPages()
@@ -487,7 +476,7 @@ class LastViewedByGrel extends WP_Widget
             if( $name == 'include_rubrics' )
                 $val = intval( $val );
             if ($name == 'exclude_ids')
-                //$val = strip_tags($val);
+               // $val = unset($val['exclude_ids']);
             if( $name == 'cookie_live' )
                 $val = strip_tags($val);
             if ($name == 'thumbnails')
