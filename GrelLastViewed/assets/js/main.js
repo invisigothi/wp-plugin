@@ -17,11 +17,11 @@ jQuery(document).ready( function( $ ){
       
     });
     if (GVData.current_page){
+       
     var data = {
         action: 'set_cookie_data_ajax',
         current_page_id: GVData.current_page,
     };
-
     jQuery.ajax({
         url: GVData.ajaxurl,
         type: 'POST',

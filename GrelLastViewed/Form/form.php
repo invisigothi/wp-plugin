@@ -1,4 +1,4 @@
-<?require_once 'fanc.php';
+<?
 $title = ! empty( $instance['title'] ) ? $instance['title'] : ''; ?>
 <p>
 <label><?=$title;?></label>

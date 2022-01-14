@@ -1,0 +1,21 @@
+{
+    "name": "sephe/grel-last-viewed",
+    "description": "\"Last viewed plugin\"",
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "sephesis",
+            "email": "sephesis@yandex.ru"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+          "App\\": "./App"
+        },
+        "files": [
+            "./lang/languages.php"
+        ]
+    }
+}

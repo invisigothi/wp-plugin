@@ -8,31 +8,43 @@
  * Author URI: ''''
 */
 
-$classes = array(
-    "config", 
-    "lastviewed", 
-    "admin", 
-    "template"
-);
-
-foreach ($classes as $class)
-{
-    $file = '/class-'.$class.'.php';
-   
-    require_once dirname( __FILE__ ) . $file;
+defined( 'ABSPATH' ) or die();
+require_once ABSPATH.'wp-includes/class-wp-widget.php';
+if ( file_exists( dirname( __FILE__ ) . '/vendor/autoload.php' ) ) {
+	require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+}
+function activateLastViewed() {
+	App\Base\Activation::activate();
+}
+//register_activation_hook( );
+function deactivateLastViewed() {
+	App\Base\Deactivation::deactivate();
 }
 
-//register_activation_hook($file, 'grel_viewed_install');
-//register_deactivation_hook($file, 'grel_viewed_uninstall');
-
-
-// function grel_viewed_install()
+// if (class_exists('App\\Init'))
 // {
-    
+    App\Init::registerservices();
+//}
+//register_deactivation_hook( );
+
+/**
+ * Initialize all the core classes of the plugin
+ */
+// if ( class_exists( 'Inc\\Init' ) ) {
+// 	//Inc\Init::register_services();
 // }
-// function grel_viewed_uninstall()
+// if (file_exists( dirname( __FILE__ )))
+
+// $classes = array(
+//     "config", 
+//     "lastviewed", 
+//     "admin", 
+//     "template"
+// );
+// foreach ($classes as $class)
 // {
-
+//     $file = '/class-'.$class.'.php';
+   
+//     require_once dirname( __FILE__ ) . $file;
 // }
-
 

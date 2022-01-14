@@ -1,29 +1,38 @@
 <?php
-class LastViewed extends WP_Widget
+namespace App\Base;
+
+use App\Base\BaseController;
+use App\Config\Config;
+use App\Admin\Admin;
+
+class LastViewed extends BaseController
 {
     private $args;
     private $currentPostId;
     private $jsvars = array();
     private $viewedlist;
+    public $url;
 
     public function __construct()
     {
-        $widget_options = array(
-            'classname' => 'LastViewed',
-            'description' => Config::GREL_WIDGET_DESCRIPTION,
-        );
-        parent::__construct('LastViewed', 'Last Viewed By Grel', $widget_options);
+        // $widget_options = array(
+        //     'classname' => 'LastViewed',
+        //     'description' => Config::GREL_WIDGET_DESCRIPTION,
+        // );
+        // $admin = new Admin();
+        // $admin->register();
+       // parent::__construct('LastViewed', 'Last Viewed By Grel', $widget_options);
         //подключение скриптов
+      
         add_action('wp', array(
             $this,
             'init'
         ));
+        //аякс
         add_action('wp_enqueue_scripts', array(
             $this,
             'GrelViewedAssets'
         ));
-      
-        //аякс
         if (wp_doing_ajax())
         {
             add_action('wp_ajax_set_cookie_data_ajax', array(
@@ -43,9 +52,8 @@ class LastViewed extends WP_Widget
                 'load_widget_ajax'
             ), 99);
         }
-
-        $admin = new Admin;
-        $admin->register();
+       
+      
         //шорткоды
         add_shortcode('grel_lastviewed', array($this, 'grelshortCode_lastViewed'));
 
@@ -100,9 +108,7 @@ class LastViewed extends WP_Widget
         }else{
             $newPostlist = $postlist;
         }
-        $loadwidget = $this->load_widget_ajax($newPostlist); 
-
-       
+        $loadwidget = $this->load_widget_ajax($newPostlist);
     }
 
     function getCookieLive($time)
@@ -129,7 +135,8 @@ class LastViewed extends WP_Widget
     }
     function GrelViewedAssets()
     {
-        $script_url = plugins_url('/assets/js/main.js', __FILE__);
+       $basecontroller = new BaseController();
+        $script_url = $basecontroller->plugin_url . 'assets/js/main.js';
         wp_enqueue_script('main', $script_url, array(
             'jquery'
         ));
@@ -142,6 +149,7 @@ class LastViewed extends WP_Widget
         echo json_encode($phpcookies);
         wp_die();
     }
+
     function load_widget_ajax()
     {
         $ArrayFromObject = true;
@@ -175,14 +183,12 @@ class LastViewed extends WP_Widget
         $container = '<div id="grel-last-viewed-1" class="grel-last-ajax" data-id="grel-last-viewed-1">';
         if (count($arr) == 0)
          {
-            $container .= '<p>Здесь пока ничего нет</p>';
             $container .= '</div>';
          }else{
-             $settings = get_option('grel_settings');
-             $i = 0;
+            $settings = get_option('grel_settings');
             foreach ($arr as $key => $val)
             {
-                 if (count($settings['exclude_ids']) > 0)
+                 if (isset($setting['exclude_ids'])  && count($settings['exclude_ids']) > 0)
                  {
                      if (in_array($val['id'], $settings['exclude_ids']))
                      {
@@ -230,25 +236,25 @@ class LastViewed extends WP_Widget
         return $imploded;
     }
 
-    public function widget($args, $instance)
-    {
-        $title = apply_filters('widget_title', $instance['title']);
-        echo $args['before_widget'] . $args['before_title'] . $title . $args['after_title']; ?>
-        <?php echo $args['after_widget'];
-    }
+    // public function widget($args, $instance)
+    // {
+    //     $title = apply_filters('widget_title', $instance['title']);
+        // echo $args['before_widget'] . $args['before_title'] . $title . $args['after_title'];
+        /*php// echo $args['after_widget']; */
+    // }
 
-    public function form($instance)
-    {
-        //include ('Form/form.php');
-       // return true;
-    }
+    // public function form($instance)
+    // {
+    //     //include ('Form/form.php');
+    //    // return true;
+    // }
 
-    public function update($new_instance, $old_instance)
-    {
-        $instance = $old_instance;
-        $instance['title'] = strip_tags($new_instance['title']);
-        return $instance;
-    }
+    // public function update($new_instance, $old_instance)
+    // {
+    //     $instance = $old_instance;
+    //     $instance['title'] = strip_tags($new_instance['title']);
+    //     return $instance;
+    // }
 
     function getViewedList($ArrayFromObject, $posttype)
     {
@@ -256,26 +262,24 @@ class LastViewed extends WP_Widget
         if (count($viewedList) > 0)
          { 
             $val = get_option('grel_settings');
-        switch($posttype)
-        {
-            case 'cat':
-                    $categories = get_categories(
-                        [
-                            'include'=>array_reverse($viewedList),
-                        ]
+            switch($posttype)
+            {
+                case 'cat':
+                        $categories = get_categories(
+                            [
+                                'include'=>array_reverse($viewedList),
+                            ]
+                        );
+                break;
+                case 'page':
+                    $args = array(
+                        'post_type'=>'page',
+                        'post__in' => array_reverse($viewedList) ,
+                        'post_status' => 'publish',
                     );
-            break;
-            case 'page':
-                $othersettings = array();
-                $args = array(
-                    'post_type'=>'page',
-                    'post__in' => array_reverse($viewedList) ,
-                    'post_status' => 'publish',
-                );
-                
-                $query = new WP_Query(array_merge($args, $othersettings));
-            break;
-        }
+                    $query = new \WP_Query($args);
+                break;
+            }
     }
            
         if ($ArrayFromObject && $posttype == 'page')
@@ -288,7 +292,8 @@ class LastViewed extends WP_Widget
                     "id" => $post->ID,
                     "post_title" => $post->post_title,
                     "post_link" => get_permalink($post->ID),
-                    "post_img" => $val['thumbnails'] == 1 ? get_the_post_thumbnail($post->ID) : '',
+                    "post_img" => '',
+                    //"post_img" => $val['thumbnails'] == 1 ? get_the_post_thumbnail($post->ID) : '',
                 );
             }
             return $resultPages;
@@ -311,7 +316,7 @@ class LastViewed extends WP_Widget
     }
    
 }
-add_action('widgets_init', function ()
-{
-    register_widget('LastViewed');
-});
+// add_action('widgets_init', function ()
+// {
+//     register_widget('LastViewed');
+// });

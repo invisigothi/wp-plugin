@@ -17,3 +17,5 @@ $mess['EN']['cookie_live'] = 'Cookie live';
 $mess['RU']['cookie_live'] = 'Время жизни куки';
 $mess['EN']['thumbnails'] = 'Post thumbnails';
 $mess['RU']['thumbnails'] = 'Изображения';
+$mess['RU']['path_to_tpl'] = 'Путь до шаблона';
+$mess['EN']['path_to_tpl'] = 'Path to template';
