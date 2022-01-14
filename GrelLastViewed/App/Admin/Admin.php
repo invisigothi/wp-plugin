@@ -7,15 +7,15 @@ Class Admin extends BaseController
 {
 public function register()
  {
-     
     add_action('admin_menu', array(
         $this,
         'grel_viewed_menu'
         )
     );
     add_action('admin_init', array($this, 'plugin_settings'));
+
+    
  }
- 
  function grel_viewed_menu() {
     add_options_page('Dog-tooth:Last viewed Options', 
     'Dog-tooth:Last viewed', 8, __FILE__, 
@@ -29,7 +29,7 @@ function grel_viewed_options() {
     if (!current_user_can('manage_options'))  {
     wp_die( __('У вас нет прав доступа на эту страницу.') );
     }
-   include $this->plugin_path . 'lang/languages.php';
+     include $this->plugin_path . '/lang/languages.php';
      include $this->plugin_path . '/form/admin-form.php';
   }
 
@@ -58,7 +58,6 @@ function grel_viewed_options() {
     );
 
     $lang = Config::CheckLang();
-
     add_settings_section( 'section_id', $mess[$lang]['settings'] , '', 'main_settings_page' );
     foreach ($this->managers as $manager)
     {
@@ -99,12 +98,12 @@ function fill_exclude()
     $val = $val ? $val['exclude_ids'] : null;
     $allPages = $this->getAllPages();
 ?>
-<select class="admin__excluded" multiple="multiple" name="grel_settings[exclude_ids][]">
-<?php foreach ($allPages as $page) : ?>
+    <select class="admin__excluded" multiple="multiple" name="grel_settings[exclude_ids][]">
+    <?php foreach ($allPages as $page) : ?>
                     <option 
                     <? 
                     if (is_array($val)){
-                    if(array_search($page['id'], $val) >=0 && array_search($page['id'], $val) !== false )
+                    if (array_search($page['id'], $val) >=0 && array_search($page['id'], $val) !== false )
                     {
                         echo 'selected';
                     }
@@ -132,7 +131,7 @@ function fill_include_rubrics(){
 }
 ## Очистка данных
 function sanitize_callback( $options ){
-    foreach( $options as $name => &$val ){
+    foreach( $options as $name => & $val ){
         if( $name == 'total' )
             $val = strip_tags( $val );
         if( $name == 'include_rubrics' )

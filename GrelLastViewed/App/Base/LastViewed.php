@@ -11,10 +11,19 @@ class LastViewed extends BaseController
     private $currentPostId;
     private $jsvars = array();
     private $viewedlist;
+    public $url;
 
     public function __construct()
     {
+        // $widget_options = array(
+        //     'classname' => 'LastViewed',
+        //     'description' => Config::GREL_WIDGET_DESCRIPTION,
+        // );
+        // $admin = new Admin();
+        // $admin->register();
+       // parent::__construct('LastViewed', 'Last Viewed By Grel', $widget_options);
         //подключение скриптов
+      
         add_action('wp', array(
             $this,
             'init'
@@ -179,7 +188,7 @@ class LastViewed extends BaseController
             $settings = get_option('grel_settings');
             foreach ($arr as $key => $val)
             {
-                 if (isset($setting['exclude_ids'])  && count($settings['exclude_ids']) > 0)
+                 if (isset($settings['exclude_ids'])  && count($settings['exclude_ids']) > 0)
                  {
                      if (in_array($val['id'], $settings['exclude_ids']))
                      {
