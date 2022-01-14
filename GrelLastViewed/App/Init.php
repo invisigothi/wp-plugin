@@ -6,6 +6,7 @@ final class Init
     public static function getservices()
     {
         return [
+            Admin\Admin::class,
             Admin\AdminEnqueue::class,
             Base\LastViewed::class
         ];
@@ -17,10 +18,6 @@ final class Init
 			if ( method_exists( $service, 'register' ) ) {
 				$service->register();
 			}
-            // if (method_exists($service, 'init'))
-            // {
-            //     $service->init();
-            // }
 		}
     }
     private static function makeinstance($current)
