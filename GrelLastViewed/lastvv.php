@@ -13,6 +13,7 @@ require_once ABSPATH.'wp-includes/class-wp-widget.php';
 if ( file_exists( dirname( __FILE__ ) . '/vendor/autoload.php' ) ) {
 	require_once dirname( __FILE__ ) . '/vendor/autoload.php';
 }
+
 function activateLastViewed() {
 	App\Base\Activation::activate();
 }
@@ -20,31 +21,10 @@ function activateLastViewed() {
 function deactivateLastViewed() {
 	App\Base\Deactivation::deactivate();
 }
-
-// if (class_exists('App\\Init'))
-// {
-    App\Init::registerservices();
-//}
 //register_deactivation_hook( );
 
-/**
- * Initialize all the core classes of the plugin
- */
-// if ( class_exists( 'Inc\\Init' ) ) {
-// 	//Inc\Init::register_services();
-// }
-// if (file_exists( dirname( __FILE__ )))
-
-// $classes = array(
-//     "config", 
-//     "lastviewed", 
-//     "admin", 
-//     "template"
-// );
-// foreach ($classes as $class)
-// {
-//     $file = '/class-'.$class.'.php';
-   
-//     require_once dirname( __FILE__ ) . $file;
-// }
+ if (class_exists('App\\Init'))
+ {
+    App\Init::registerservices();
+ }
 
