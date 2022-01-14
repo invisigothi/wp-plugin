@@ -11,19 +11,10 @@ class LastViewed extends BaseController
     private $currentPostId;
     private $jsvars = array();
     private $viewedlist;
-    public $url;
 
     public function __construct()
     {
-        // $widget_options = array(
-        //     'classname' => 'LastViewed',
-        //     'description' => Config::GREL_WIDGET_DESCRIPTION,
-        // );
-        // $admin = new Admin();
-        // $admin->register();
-       // parent::__construct('LastViewed', 'Last Viewed By Grel', $widget_options);
         //подключение скриптов
-      
         add_action('wp', array(
             $this,
             'init'

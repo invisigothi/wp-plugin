@@ -151,10 +151,13 @@ function fill_exclude()
 <select class="admin__excluded" multiple="multiple" name="grel_settings[exclude_ids][]">
 <?php foreach ($allPages as $page) : ?>
                     <option 
-                    <? if (array_search($page['id'], $val) >=0 && array_search($page['id'], $val) !== false )
+                    <? 
+                    if (is_array($val)){
+                    if(array_search($page['id'], $val) >=0 && array_search($page['id'], $val) !== false )
                     {
                         echo 'selected';
-                    }?>
+                    }
+                }?>
                      value="<?=$page["id"]; ?>" ><?=$page["title"] ?>
                     </option>
                 <?php endforeach; ?>
