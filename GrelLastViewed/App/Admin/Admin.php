@@ -7,20 +7,14 @@ Class Admin extends BaseController
 {
 public function register()
  {
-    // add_filter('plugin_action_links_'.plugin_basename(__FILE__), [$this,'add_plugin_setting_link']);  
+     
     add_action('admin_menu', array(
         $this,
         'grel_viewed_menu'
         )
     );
     add_action('admin_init', array($this, 'plugin_settings'));
-
-    
  }
-
-//  public function add_plugin_setting_link($link){
-   
-// }
  
  function grel_viewed_menu() {
     add_options_page('Dog-tooth:Last viewed Options', 
@@ -35,7 +29,7 @@ function grel_viewed_options() {
     if (!current_user_can('manage_options'))  {
     wp_die( __('У вас нет прав доступа на эту страницу.') );
     }
-    // include 'lang/languages.php';
+   include $this->plugin_path . 'lang/languages.php';
      include $this->plugin_path . '/form/admin-form.php';
   }
 
@@ -66,53 +60,10 @@ function grel_viewed_options() {
     $lang = Config::CheckLang();
 
     add_settings_section( 'section_id', $mess[$lang]['settings'] , '', 'main_settings_page' );
-    add_settings_field('total', $mess[$lang]['total'], 
-        array(
-            $this,
-            'fill_total'
-    ), 
-    'main_settings_page',
-    'section_id' );
-
-    add_settings_field('exclude',  $mess[$lang]['exclude'], 
-        array(
-            $this,
-            'fill_exclude'
-        ), 
-    'main_settings_page', 
-    'section_id' );
-    
-    add_settings_field('include_rubrics',  $mess[$lang]['include_rubrics'], 
-        array(
-            $this, 
-            'fill_include_rubrics' 
-    ), 
-    'main_settings_page', 
-    'section_id' );
-
-    add_settings_field('cookie_live', $mess[$lang]['cookie_live'],
-    array(
-        $this,
-        'fill_cookie_live'
-    ),
-    'main_settings_page',
-    'section_id');
-
-    add_settings_field('path_to_tpl', $mess[$lang]['path_to_tpl'],
-    array(
-        $this,
-        'fill_path_to_tpl'
-    ),
-    'main_settings_page',
-    'section_id');
-
-    add_settings_field('thumbnails', $mess[$lang]['thumbnails'],
-    array(
-        $this,
-        'fill_thumbnails'
-    ),
-    'main_settings_page',
-    'section_id');
+    foreach ($this->managers as $manager)
+    {
+         add_settings_field($manager, $mess[$lang][$manager], array($this,'fill_'.$manager),'main_settings_page','section_id' );
+    }
 }
 function fill_path_to_tpl()
 {
@@ -181,13 +132,13 @@ function fill_include_rubrics(){
 }
 ## Очистка данных
 function sanitize_callback( $options ){
-    foreach( $options as $name => & $val ){
+    foreach( $options as $name => &$val ){
         if( $name == 'total' )
             $val = strip_tags( $val );
         if( $name == 'include_rubrics' )
             $val = intval( $val );
         if ($name == 'exclude_ids')
-           $val =  $val['exclude_ids'];
+          // $val =  $val['exclude_ids'];
         if( $name == 'cookie_live' )
             $val = strip_tags($val);
         if ($name == 'thumbnails')
