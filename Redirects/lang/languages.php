@@ -1,0 +1,23 @@
+<?php
+$mess['EN']['lang'] = 'Language';
+$mess['RU']['lang'] = 'Язык';
+$mess['EN']['btn_save_text'] = 'Save changes';
+$mess['RU']['btn_save_text'] = 'Сохранить';
+$mess['EN']['settings_title'] = 'Settings';
+$mess['RU']['settings_title'] = 'Настройки';
+$mess['EN']['settings'] = 'Main settings';
+$mess['RU']['settings'] = 'Основные настройки';
+$mess['EN']['exclude'] = 'Exclude';
+$mess['RU']['exclude'] = 'Исключить';
+$mess['EN']['include_rubrics'] = 'Include rubrics';
+$mess['RU']['include_rubrics'] = 'Включать рубрики';
+$mess['EN']['total'] = 'Max quantity';
+$mess['RU']['total'] = 'Максимальное количество постов';
+$mess['EN']['cookie_live'] = 'Cookie live';
+$mess['RU']['cookie_live'] = 'Время жизни куки';
+$mess['EN']['thumbnails'] = 'Post thumbnails';
+$mess['RU']['thumbnails'] = 'Изображения';
+// $mess['RU']['path_to_tpl'] = 'Путь до шаблона';
+// $mess['EN']['path_to_tpl'] = 'Path to template';
+$mess['RU']['templates'] = 'Шаблон';
+$mess['EN']['templates'] = 'Template';
